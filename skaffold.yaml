@@ -1,0 +1,28 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+  - image: devops-test-267715/html5-animation
+    context: .
+    docker: {}
+  tagPolicy:
+    envTemplate:
+      template: '{{.DOCKER_REGISTRY}}/{{.IMAGE_NAME}}:{{.VERSION}}'
+  local: {}
+deploy:
+  kubectl: {}
+profiles:
+- name: dev
+  build:
+    tagPolicy:
+      envTemplate:
+        template: '{{.DOCKER_REGISTRY}}/{{.IMAGE_NAME}}:{{.DIGEST_HEX}}'
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: html5-animation
+        chartPath: charts/html5-animation
+        setValueTemplates:
+          image.repository: '{{.DOCKER_REGISTRY}}/{{.IMAGE_NAME}}'
+          image.tag: '{{.DIGEST_HEX}}'
